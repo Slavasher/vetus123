@@ -1,6 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
+import type { MapRegion } from "@/components/InteractiveMap";
 
 const regions = [
   {
@@ -20,23 +22,76 @@ const regions = [
   }
 ];
 
-const mapRegions = [
+const mapRegions: MapRegion[] = [
   {
     id: "northwest",
-    name: "Северо-Запад",
-    points: "40,30 140,30 160,80 120,120 40,90"
+    name: "Северо-Западный федеральный округ",
+    feature: {
+      type: "Feature",
+      properties: { id: "northwest", name: "Северо-Западный федеральный округ" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [25, 60],
+            [40, 60],
+            [45, 66],
+            [38, 70],
+            [28, 68],
+            [25, 60]
+          ]
+        ]
+      }
+    }
   },
   {
     id: "central",
-    name: "Центр",
-    points: "150,120 240,90 300,120 270,190 170,190"
+    name: "Центральный федеральный округ",
+    feature: {
+      type: "Feature",
+      properties: { id: "central", name: "Центральный федеральный округ" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [36, 52],
+            [46, 52],
+            [50, 56],
+            [44, 59],
+            [36, 57],
+            [36, 52]
+          ]
+        ]
+      }
+    }
   },
   {
     id: "volga",
     name: "Поволжье",
-    points: "310,130 420,150 460,220 360,260 290,200"
+    feature: {
+      type: "Feature",
+      properties: { id: "volga", name: "Поволжье" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [46, 50],
+            [58, 50],
+            [62, 54],
+            [54, 58],
+            [46, 55],
+            [46, 50]
+          ]
+        ]
+      }
+    }
   }
 ];
+
+const InteractiveMap = dynamic(
+  () => import("@/components/InteractiveMap").then((mod) => mod.InteractiveMap),
+  { ssr: false }
+);
 
 export function MapSelector() {
   const [regionId, setRegionId] = useState(regions[0].id);
@@ -53,41 +108,20 @@ export function MapSelector() {
         <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Карта</p>
         <h3 className="mt-2 text-2xl font-semibold">Интерактивная карта России</h3>
         <p className="mt-2 text-sm text-slate-300">
-          Нажмите на область на карте — мы подсветим выбранный федеральный округ и предложим зоны.
-          Точные точки доступны после оплаты и выдачи.
+          Карта похожа на привычные сервисы: есть масштабирование и перемещение. Нажмите на
+          выделенную область — мы подсветим выбранный округ и предложим зоны. Точные точки доступны
+          после оплаты и выдачи.
         </p>
         <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-          <svg viewBox="0 0 520 320" className="h-64 w-full">
-            <rect width="520" height="320" rx="16" fill="#0b1220" />
-            {mapRegions.map((region) => {
-              const active = region.id === regionId;
-              return (
-                <g key={region.id}>
-                  <polygon
-                    points={region.points}
-                    onClick={() => {
-                      setRegionId(region.id);
-                      const nextRegion = regions.find((item) => item.id === region.id);
-                      setZone(nextRegion?.zones[0] ?? "");
-                    }}
-                    className={`cursor-pointer transition ${
-                      active ? "fill-accent/80" : "fill-slate-800/80"
-                    }`}
-                    stroke={active ? "#f6d58f" : "#1e293b"}
-                    strokeWidth="2"
-                  />
-                  <text
-                    x={region.points.split(" ")[0].split(",")[0]}
-                    y={Number(region.points.split(" ")[0].split(",")[1]) + 20}
-                    fontSize="12"
-                    fill={active ? "#f8e3b7" : "#94a3b8"}
-                  >
-                    {region.name}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+          <InteractiveMap
+            regions={mapRegions}
+            selectedRegionId={regionId}
+            onSelect={(nextId) => {
+              setRegionId(nextId);
+              const nextRegion = regions.find((item) => item.id === nextId);
+              setZone(nextRegion?.zones[0] ?? "");
+            }}
+          />
           <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-400">
             {mapRegions.map((region) => (
               <button
