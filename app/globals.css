@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-slate-950 text-white;
+}
+
+.gradient-panel {
+  background: linear-gradient(135deg, rgba(16, 23, 40, 0.95), rgba(8, 12, 20, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

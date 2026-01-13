@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  draft
+  pending_payment
+  paid
+  in_progress
+  delivered
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  refunded
+}
+
+enum UserRole {
+  client
+  admin
+  manager
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  role      UserRole @default(client)
+  createdAt DateTime @default(now())
+  orders    Order[]
+  auditLogs AuditLog[]
+}
+
+model Region {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  parent    Region?  @relation("RegionHierarchy", fields: [parentId], references: [id])
+  children  Region[] @relation("RegionHierarchy")
+  createdAt DateTime @default(now())
+  places    Place[]
+  orders    Order[]
+}
+
+model Place {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  latitude    Float?
+  longitude   Float?
+  regionId    String
+  region      Region        @relation(fields: [regionId], references: [id])
+  reports     PlaceReport[]
+  files       File[]
+  createdAt   DateTime      @default(now())
+}
+
+model PlaceReport {
+  id                     String   @id @default(cuid())
+  placeId                String
+  place                  Place    @relation(fields: [placeId], references: [id])
+  originName             String
+  historicalContext      String
+  firstMentionYear       String
+  landOwners             String
+  tradeRoutes            String
+  residentsOccupations   String
+  industryObjects        String
+  socialSpiritualLife    String
+  parish                 String
+  searchTips             String
+  createdAt              DateTime @default(now())
+}
+
+model Order {
+  id           String        @id @default(cuid())
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id])
+  regionId     String?
+  region       Region?       @relation(fields: [regionId], references: [id])
+  placesCount  Int
+  totalPrice   Int
+  status       OrderStatus   @default(draft)
+  contactName  String
+  contactEmail String
+  contactPhone String?
+  createdAt    DateTime      @default(now())
+  items        OrderItem[]
+  payments     Payment[]
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  orderId  String
+  order    Order  @relation(fields: [orderId], references: [id])
+  placeId  String?
+  place    Place? @relation(fields: [placeId], references: [id])
+  price    Int
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id])
+  provider    String
+  status      PaymentStatus @default(pending)
+  amount      Int
+  externalId  String?
+  receiptUrl  String?
+  createdAt   DateTime      @default(now())
+}
+
+model File {
+  id        String   @id @default(cuid())
+  placeId   String?
+  place     Place?   @relation(fields: [placeId], references: [id])
+  type      String
+  url       String
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
