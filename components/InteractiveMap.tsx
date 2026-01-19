@@ -2,7 +2,6 @@
 
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import type { Feature, FeatureCollection, Geometry, GeoJsonObject } from "geojson";
-import "leaflet/dist/leaflet.css";
 
 export type MapRegion = {
   id: string;
