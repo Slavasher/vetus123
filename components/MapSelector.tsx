@@ -22,77 +22,6 @@ const regions = [
   }
 ];
 
-const mapRegions: MapRegion[] = [
-  {
-    id: "northwest",
-    name: "Северо-Западный федеральный округ",
-    feature: {
-      type: "Feature",
-      properties: { id: "northwest", name: "Северо-Западный федеральный округ" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [25, 60],
-            [40, 60],
-            [45, 66],
-            [38, 70],
-            [28, 68],
-            [25, 60]
-          ]
-        ]
-      }
-    }
-  },
-  {
-    id: "central",
-    name: "Центральный федеральный округ",
-    feature: {
-      type: "Feature",
-      properties: { id: "central", name: "Центральный федеральный округ" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [36, 52],
-            [46, 52],
-            [50, 56],
-            [44, 59],
-            [36, 57],
-            [36, 52]
-          ]
-        ]
-      }
-    }
-  },
-  {
-    id: "volga",
-    name: "Поволжье",
-    feature: {
-      type: "Feature",
-      properties: { id: "volga", name: "Поволжье" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [46, 50],
-            [58, 50],
-            [62, 54],
-            [54, 58],
-            [46, 55],
-            [46, 50]
-          ]
-        ]
-      }
-    }
-  }
-];
-
-const InteractiveMap = dynamic(
-  () => import("@/components/InteractiveMap").then((mod) => mod.InteractiveMap),
-  { ssr: false }
-);
-
 export function MapSelector() {
   const [regionId, setRegionId] = useState(regions[0].id);
   const [zone, setZone] = useState(regions[0].zones[0]);
@@ -108,41 +37,9 @@ export function MapSelector() {
         <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Карта</p>
         <h3 className="mt-2 text-2xl font-semibold">Интерактивная карта России</h3>
         <p className="mt-2 text-sm text-slate-300">
-          Карта похожа на привычные сервисы: есть масштабирование и перемещение. Нажмите на
-          выделенную область — мы подсветим выбранный округ и предложим зоны. Точные точки доступны
-          после оплаты и выдачи.
+          До оплаты показываем только примерные зоны. Точные точки доступны после оплаты и выдачи.
         </p>
-        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-          <InteractiveMap
-            regions={mapRegions}
-            selectedRegionId={regionId}
-            onSelect={(nextId) => {
-              setRegionId(nextId);
-              const nextRegion = regions.find((item) => item.id === nextId);
-              setZone(nextRegion?.zones[0] ?? "");
-            }}
-          />
-          <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-400">
-            {mapRegions.map((region) => (
-              <button
-                key={region.id}
-                onClick={() => {
-                  setRegionId(region.id);
-                  const nextRegion = regions.find((item) => item.id === region.id);
-                  setZone(nextRegion?.zones[0] ?? "");
-                }}
-                className={`rounded-full border px-3 py-1 transition ${
-                  region.id === regionId
-                    ? "border-gold text-gold"
-                    : "border-white/10 text-slate-400 hover:text-white"
-                }`}
-                type="button"
-              >
-                {region.name}
-              </button>
-            ))}
-          </div>
-        </div>
+        <div className="mt-6 h-64 rounded-2xl border border-dashed border-white/20 bg-[radial-gradient(circle_at_top,_rgba(15,106,212,0.2),_transparent_70%)]" />
       </div>
       <div className="rounded-3xl bg-slate-900/70 p-6">
         <label className="text-xs uppercase tracking-[0.2em] text-slate-400">Регион</label>
